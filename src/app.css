@@ -69,3 +69,16 @@ button:focus,
 button:focus-visible {
   outline: 4px auto #00ff00;
 }
+
+@media (max-width: 640px) {
+  h1 {
+    font-size: 2.4rem;
+    width: 100%;
+    padding: 0.5em;
+    word-wrap: break-word;
+  }
+  h2 {
+    font-size: 1.8rem;
+    width: 100%;
+  }
+}
