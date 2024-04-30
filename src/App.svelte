@@ -38,7 +38,7 @@
   }
 
   onMount(async () => {
-    id = getUrlParam("id");
+    id = getUrlParam("q");
     console.log(id);
 
     settings.onAuthorChanged(checkIfUserVoted);
