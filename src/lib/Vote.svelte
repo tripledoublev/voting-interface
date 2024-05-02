@@ -6,8 +6,7 @@
     generateID,
     submissionSuccess,
   } from "../store.js";
-
-  import { createEventDispatcher } from "svelte";
+  import { createEventDispatcher, onMount } from "svelte";
 
   export let id;
 
@@ -17,6 +16,10 @@
   let authorKeypair;
   let anon;
   let timestamp;
+
+  export let responses = [];
+
+
 
   async function submitVote(decision) {
     // Handle the vote submission to earthstar
@@ -41,7 +44,7 @@
 
     // Create a new identity to protect voters privacy
     anon = await generateID("anon");
-    console.log('anon', anon);
+
     // Set the document to the earthstar replica
     if (!(anon instanceof Earthstar.ValidationError)) {
       voteResult = await replica.set(anon, thisDoc);
@@ -78,8 +81,14 @@
   {@html id}
 </h1>
 <div class="flex">
+  {#if responses.length > 0}
+    {#each responses as response}
+      <button on:click={() => submitVote(response)}>{response}</button>
+    {/each}
+  {:else}
   <button on:click={() => submitVote("yes")}>yes 👍</button>
   <button on:click={() => submitVote("no")}>no 👎</button>
+  {/if}
 </div>
 
 <style>
@@ -92,7 +101,7 @@
     padding-top: 1rem;
     font-size: 1.25rem;
   }
-  button:first-child {
-    margin-right: 1rem;
+  button:not(:first-child) {
+    margin-left: 1rem;
   }
 </style>

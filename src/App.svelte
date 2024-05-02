@@ -5,7 +5,7 @@
   import { fly } from "svelte/transition";
   import { getSHA256Hash } from "boring-webcrypto-sha256";
   import settings, { generateID, submissionSuccess, replica } from "./store";
-  import { getUrlParam } from "./lib/utils.js";
+  import { getUrlParam, getAllResponses } from "./lib/utils.js";
 
   import Vote from "./lib/Vote.svelte";
   import Identity from "./lib/Identity.svelte";
@@ -13,6 +13,10 @@
   let showIdentity = false;
   let showVotingInterface = false;
   let hasVoted = false;
+
+  let responses = [];
+
+  let voteCounts = {};
 
   let id, positiveVotes, negativeVotes, voters;
 
@@ -39,6 +43,7 @@
 
   onMount(async () => {
     id = getUrlParam("q");
+    responses = getAllResponses();
     console.log(id);
 
     settings.onAuthorChanged(checkIfUserVoted);
@@ -72,20 +77,36 @@
 
     let hash = await getSHA256Hash(id);
 
-    const documents = await cache.queryDocs({
+    const allDocuments = await cache.queryDocs({
       filter: { pathStartsWith: "/" + hash },
     });
 
+    const documents = allDocuments.filter(doc => !doc.path.endsWith('voter'));
+
+    console.log('documents', documents)
     if (documents.length >= 0) {
       // Check for document text that contains 'Voted'
-      voters = documents.filter((doc) => doc.text.includes("Voted"));
+      voters = allDocuments.filter((doc) => doc.text.includes("Voted"));
+      
 
+      if (responses && responses.length > 0) {
+        voteCounts = {};
+        documents.forEach((doc) => {
+          const vote = doc.text; 
+      if (voteCounts[vote]) {
+        voteCounts[vote] += 1;
+      } else {
+        voteCounts[vote] = 1;
+      }
+    });
+
+      } else {
       // Check for the number of positive votes
       positiveVotes = documents.filter((doc) => doc.text === "yes");
 
       // Check for the number of negative votes
       negativeVotes = documents.filter((doc) => doc.text === "no");
-
+      }
       checkIfUserVoted(settings.author);
     }
 
@@ -111,24 +132,22 @@
           out:fly={{ y: -400, duration: 1300 }}
           class="absolute flex flex-col items-center w-full h-full justify-center"
         >
-          <Vote {id} on:success={fetchVotes}/>
+          <Vote {id} on:success={fetchVotes} {responses}/>
         </div>
       {:else}
         <div
           in:fly={{ y: 1200, duration: 1200 }}
           out:fly={{ y: 1200, duration: 1200 }}
-          class="absolute"
         >
             <div class="m-4">
               <h1>{@html id}</h1>
               <h2>Results</h2>
-              <div class="flex flex-row ml-5">
-                <div class='results'>
-                  {positiveVotes.length} 👍
+              <div class="flex flex-col sm:flex-row ml-5">
+                {#each Object.entries(voteCounts) as [response, count]}
+                <div class="results flex flex-col">
+                  <span class="txt">{count}</span> {response}
                 </div>
-                <div class='results'> 
-                  {negativeVotes.length} 👎
-                </div>
+              {/each}
               </div>
             </div>
         </div>
@@ -173,6 +192,10 @@
     margin: 1rem;
     width: fit-content;
   }
+  .txt {
+    font-size: 2.5rem;
+    font-weight: bold;
+  }
   #bottomButton {
     position: fixed;
     display: flex;
@@ -191,8 +214,5 @@
     left: 0;
     z-index: 100;
     width: 100vw;
-  }
-  blockquote {
-    font-size: 1.5rem;
   }
 </style>
