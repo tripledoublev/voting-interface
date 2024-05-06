@@ -44,6 +44,7 @@ h2 {
   font-size: 2.4rem;
   line-height: 1.1;
   padding: 1em;
+  max-width: 68rem;
 }
 
 #app {
