@@ -27,3 +27,21 @@ export const getUrlParam = (key) => {
     console.log({responses})
     return responses;
   };
+
+  export const fetchAllowedVoters = async () => {
+    const voters = getUrlParam('r');
+    if (voters) {
+        try {
+            const response = await fetch(`${voters}.json`);
+            if (!response.ok) {
+                console.error('Failed to fetch voter list:', response.statusText);
+                return null;
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching voter list:', error);
+            return null;
+        }
+    }
+    return null;
+};
