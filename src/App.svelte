@@ -5,14 +5,18 @@
   import { fly } from "svelte/transition";
   import { getSHA256Hash } from "boring-webcrypto-sha256";
   import settings, { generateID, submissionSuccess, replica } from "./store";
-  import { getUrlParam, getAllResponses } from "./lib/utils.js";
+  import { getUrlParam, getAllResponses, fetchAllowedVoters } from "./lib/utils.js";
 
   import Vote from "./lib/Vote.svelte";
+  import Results from "./lib/Results.svelte";
   import Identity from "./lib/Identity.svelte";
 
   let showIdentity = false;
   let showVotingInterface = false;
   let hasVoted = false;
+  let showIdentityButton = false;
+
+  let allowedVoters = null;
 
   let responses = [];
 
@@ -42,6 +46,7 @@
   }
 
   onMount(async () => {
+    allowedVoters = await fetchAllowedVoters();
     id = getUrlParam("q");
     responses = getAllResponses();
     console.log(id);
@@ -54,7 +59,7 @@
       if (!(generatedId instanceof Earthstar.ValidationError)) {
         settings.author = generatedId;
       }
-    }
+    } 
 
     if (id) {
 
@@ -62,7 +67,13 @@
 
       checkIfUserVoted(settings.author);
 
+      const currentAuthor = settings.author?.address;
+      if (allowedVoters && currentAuthor && allowedVoters.includes(currentAuthor)) {
       showVotingInterface = true;
+    } else {
+      showIdentityButton = true;
+    }
+
 
       cache.onCacheUpdated(fetchVotes);
 
@@ -134,29 +145,27 @@
         >
           <Vote {id} on:success={fetchVotes} {responses}/>
         </div>
-      {:else}
+      {:else if hasVoted}
         <div
           in:fly={{ y: 1200, duration: 1200 }}
           out:fly={{ y: 1200, duration: 1200 }}
         >
-            <div class="m-4">
-              <h1>{@html id}</h1>
-              <h2>Results</h2>
-              <div class="flex flex-col sm:flex-row ml-5">
-                {#each Object.entries(voteCounts) as [response, count]}
-                <div class="results flex flex-col">
-                  <span class="txt">{count}</span> {response}
-                </div>
-              {/each}
-              </div>
-            </div>
+          <Results {id} {voteCounts} />
+        </div>
+      {:else}
+        <div 
+          in:fly={{ y: 1200, duration: 1200 }}
+          out:fly={{ y: 1200, duration: 1200 }}
+          >
+          <h2>
+          This is a private vote. You are not allowed to vote with your current identity. Please use the keypair management tool at the bottom right of the screen to load the adequate identity.
+            </h2>
         </div>
       {/if}
     {/if}
   </div>
 </main>
-<!-- Identity management 
-{#if showVotingInterface}
+{#if showIdentityButton}
   <div class="flex flex-col">
     <div
       id="bottomButton"
@@ -176,7 +185,6 @@
     {/if}
   </div>
 {/if}
--->
 
 <style>
   main {
