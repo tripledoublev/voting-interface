@@ -1,58 +1,45 @@
 # Voting Interface
 
-This is a svelte app uses Earthstar to quickly share a voting interfaces.
-Question are entered with the `id` URL param.
-The id can be the question itself or any unique identifier if you prefer the question to remain secret to others.
-Earthstar ID is stored in browser settings and prevents users from casting multiple votes from the same browser.
-Users can still open private windows, other browsers or any other strategy for casting multiple votes.
-This is why this interface should not be used for important votes but rather offer a quick and fun interface to gather feedback on specific questions.
- 
+This is a svelte app that uses Earthstar to quickly create and share a voting interface.
+
+## Customizing parameters
+
+example url format using all parameters: 
+`{url}/?1=maybe&2=yes&3=no&r=members&q=do you understand the process?`
+
+### Question
+The question is entered with the `q` URL param (question).
+The `q` can be the question itself or any unique identifier if you prefer the question to remain secret.
+
+## Other params include response choices and restricted voting for a list of predefined Identities.
+
+### Responses
+Response choices can be defined by using single-digit integers. [0-9]
+This option is to be used if you want to give choices to voters beyond 'yes' or 'no'.
+
+### Restricted voting
+For advanced voting, it is possible to restrict voters to a list of predefined keypairs.
+A containing the identity of the allowed voters need to be added to the `public` folder.
+Once this file is available, it can be used with the `r` param, followed by the name of the file (without its json extension).
+
+### Unrestricted voting
+For basic voting, when the `r` param is not used, Earthstar ID is stored in browser settings and prevents users from casting multiple votes from the same browser.
+
+When votes are not restricted to specific keypairs, users can still open private windows, other browsers or any other strategy for casting multiple votes.
+This is why this voting interface should not be used in unrestricted mode for important votes. The unrestricted option is meant to offer a quick and fun interface to gather feedback on specific questions.
+
+## How does it work?
+In all cases, the vote is cast with a throwaway (anonymized) keypair to make sure all votes remain private.
+Original keypairs are stored to make sure only one vote is cast per keypair.
+In summary, this means that someone could look at the logs and see who voted but not necessarily what they voted for.
 
 
-# Svelte + Vite
 
-This template should help get you started developing with Svelte in Vite.
-
-## Recommended IDE Setup
-
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode).
-
-## Need an official Svelte framework?
-
-Check out [SvelteKit](https://github.com/sveltejs/kit#readme), which is also powered by Vite. Deploy anywhere with its serverless-first approach and adapt to various platforms, with out of the box support for TypeScript, SCSS, and Less, and easily-added support for mdsvex, GraphQL, PostCSS, Tailwind CSS, and more.
-
-## Technical considerations
-
-**Why use this over SvelteKit?**
-
-- It brings its own routing solution which might not be preferable for some users.
-- It is first and foremost a framework that just happens to use Vite under the hood, not a Vite app.
-
-This template contains as little as possible to get started with Vite + Svelte, while taking into account the developer experience with regards to HMR and intellisense. It demonstrates capabilities on par with the other `create-vite` templates and is a good starting point for beginners dipping their toes into a Vite + Svelte project.
-
-Should you later need the extended capabilities and extensibility provided by SvelteKit, the template has been structured similarly to SvelteKit so that it is easy to migrate.
-
-**Why `global.d.ts` instead of `compilerOptions.types` inside `jsconfig.json` or `tsconfig.json`?**
-
-Setting `compilerOptions.types` shuts out all other types not explicitly listed in the configuration. Using triple-slash references keeps the default TypeScript setting of accepting type information from the entire workspace, while also adding `svelte` and `vite/client` type information.
-
-**Why include `.vscode/extensions.json`?**
-
-Other templates indirectly recommend extensions via the README, but this file allows VS Code to prompt the user to install the recommended extension upon opening the project.
-
-**Why enable `checkJs` in the JS template?**
-
-It is likely that most cases of changing variable types in runtime are likely to be accidental, rather than deliberate. This provides advanced typechecking out of the box. Should you like to take advantage of the dynamically-typed nature of JavaScript, it is trivial to change the configuration.
-
-**Why is HMR not preserving my local component state?**
-
-HMR state preservation comes with a number of gotchas! It has been disabled by default in both `svelte-hmr` and `@sveltejs/vite-plugin-svelte` due to its often surprising behavior. You can read the details [here](https://github.com/sveltejs/svelte-hmr/tree/master/packages/svelte-hmr#preservation-of-local-state).
-
-If you have state that's important to retain within a component, consider creating an external store which would not be replaced by HMR.
-
-```js
-// store.js
-// An extremely simple external store
-import { writable } from 'svelte/store'
-export default writable(0)
+## Running it locally
+You can run this voting interface locally.
+After cloning this repository, once in the project's folder, you can follow these steps to install and run this web app:
 ```
+npm install
+npm run dev
+```
+
