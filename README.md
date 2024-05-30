@@ -19,7 +19,7 @@ This option is to be used if you want to give choices to voters beyond 'yes' or 
 
 ### Restricted voting
 For advanced voting, it is possible to restrict voters to a list of predefined keypairs.
-A containing the identity of the allowed voters need to be added to the `public` folder.
+A `json` file containing the identity of the allowed voters need to be added to the `public` folder.
 Once this file is available, it can be used with the `r` param, followed by the name of the file (without its json extension).
 
 ### Unrestricted voting
