@@ -46,10 +46,16 @@
   }
 
   onMount(async () => {
-    allowedVoters = await fetchAllowedVoters();
     id = getUrlParam("q");
     responses = getAllResponses();
-    console.log(id);
+
+    // Check if the 'r' parameter is present to apply restricted voting
+    const restrictedVote = getUrlParam("r");
+
+      if (restrictedVote) {
+      allowedVoters = await fetchAllowedVoters();
+    }
+
 
     settings.onAuthorChanged(checkIfUserVoted);
 
@@ -62,16 +68,21 @@
     } 
 
     if (id) {
+    fetchVotes();
+    checkIfUserVoted(settings.author);
 
-      fetchVotes();
+    const currentAuthor = settings.author?.address;
 
-      checkIfUserVoted(settings.author);
-
-      const currentAuthor = settings.author?.address;
+    if (restrictedVote) {
       if (allowedVoters && currentAuthor && allowedVoters.includes(currentAuthor)) {
-      showVotingInterface = true;
+        showVotingInterface = true;
+      } else {
+        // Allow use to load a different identity
+        showIdentityButton = true;
+      }
     } else {
-      showIdentityButton = true;
+      // Open voting, only need to check if the user has voted
+      showVotingInterface = !hasVoted;
     }
 
 
