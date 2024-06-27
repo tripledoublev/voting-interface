@@ -142,7 +142,7 @@
 </script>
 
 <main>
-  <div>
+  <div class='absolute flex flex-col items-center w-full h-full justify-center'>
     {#if !id}
       <h1>
         An experimental voting tool built with Earthstar.
@@ -150,7 +150,7 @@
     {:else}
       {#if showVotingInterface}
         <div
-          in:fly={{ y: -400, duration: 3000 }}
+          in:fly={{ y: -400, duration: 5000 }}
           out:fly={{ y: -400, duration: 3000 }}
           class="absolute flex flex-col items-center w-full h-full justify-center"
         >
@@ -158,7 +158,7 @@
         </div>
       {:else if hasVoted}
         <div
-          in:fly={{ y: 1200, duration: 1200 }}
+          in:fly={{ y: 1000, duration: 8000 }}
           out:fly={{ y: 1200, duration: 1200 }}
         >
           <Results {id} {voteCounts} />
