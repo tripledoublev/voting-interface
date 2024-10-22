@@ -5,7 +5,7 @@
   import { fly } from "svelte/transition";
   import { getSHA256Hash } from "boring-webcrypto-sha256";
   import settings, { generateID, submissionSuccess, replica } from "./store";
-  import { getUrlParam, getAllResponses, fetchAllowedVoters } from "./lib/utils.js";
+  import { getUrlParam, fetchAllowedVoters, getAllChoices } from "./lib/utils.js";
 
   import Vote from "./lib/Vote.svelte";
   import Results from "./lib/Results.svelte";
@@ -47,7 +47,7 @@
 
   onMount(async () => {
     id = getUrlParam("q");
-    responses = getAllResponses();
+    responses = getAllChoices();
 
     // Check if the 'r' parameter is present to apply restricted voting
     const restrictedVote = getUrlParam("r");
