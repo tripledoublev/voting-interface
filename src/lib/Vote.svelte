@@ -15,60 +15,92 @@
   let result, voteResult;
   let authorKeypair;
   let anon;
-  let timestamp;
+  let uniqueIdentifier;
 
   export let responses = [];
 
+  let selectedResponses = new Set(); // Store selected responses
 
+  // Function to toggle the selection of responses
+  function toggleSelection(response) {
+    if (selectedResponses.has(response)) {
+      selectedResponses.delete(response);
+    } else {
+      selectedResponses.add(response);
+    }
+  }
 
-  async function submitVote(decision) {
+  // Function to submit the selected responses
+  async function submitVote() {
     // Handle the vote submission to earthstar
-    timestamp = new Date().getTime();
-    console.log('timestamp', timestamp);
+
+
 
     // for valid path, hash(sha256) the id
     const hash = await getSHA256Hash(id);
     console.log('hash', hash);
 
-    // Question ID
-    let docPath = '/' + hash + '/' + timestamp;
+    let allVotesSuccess = true;
 
-    // Vote as doc text
-    let docText = decision;
+    // Submit each selected response
+    for (let decision of selectedResponses) {
+      // Generate a unique timestamp or identifier for each vote
+      uniqueIdentifier = Math.round(new Date().getTime() + Math.random());
+      console.log('uniqueIdentifier', uniqueIdentifier);
+      
+      // Question ID
+      let docPath = '/' + hash + '/' + uniqueIdentifier;
 
-    // Create a new document object
-    let thisDoc = {
-      path: docPath,
-      text: docText,
-    };
+      // Vote as doc text
+      let docText = decision;
 
-    // Create a new identity to protect voters privacy
-    anon = await generateID("anon");
+      // Create a new document object
+      let thisDoc = {
+        path: docPath,
+        text: docText,
+      };
 
-    // Set the document to the earthstar replica
-    if (!(anon instanceof Earthstar.ValidationError)) {
-      voteResult = await replica.set(anon, thisDoc);
-      console.log('result', voteResult)
-      // Check if voting suceeded and update store the voters identity
-      if (voteResult.kind === "success") {
-        // Reuse thisDoc object but change text by 'Voted' and path by '/id/timestamp/voter'
-        thisDoc.text = "Voted";
-        thisDoc.path = '/' + hash + '/' + timestamp + '/voter';
+      // Create a new identity to protect voters' privacy
+      anon = await generateID("anon");
 
+      // Set the document to the earthstar replica
+      if (!(anon instanceof Earthstar.ValidationError)) {
+        voteResult = await replica.set(anon, thisDoc);
+        console.log('result', voteResult);
 
-        // Set the document to the earthstar replica
-        result = await replica.set(authorKeypair, thisDoc);
-        console.log('voted___result', result)
+        if (voteResult.kind !== "success") {
+          allVotesSuccess = false; // Mark failure if any vote submission fails
+        }
+      }
+    }
+
+    // After all votes have been submitted, write the "Voted" message
+    if (allVotesSuccess) {
+      let votedDocPath = '/' + hash + '/voter/' + Math.round(new Date().getTime() + Math.random());
+      let votedDoc = {
+        path: votedDocPath,
+        text: "Voted",
+      };
+
+      // Set the "Voted" document
+      result = await replica.set(authorKeypair, votedDoc);
+      console.log('voted___result', result);
+
+      if (result.kind === "success") {
         submissionSuccess.set(true);
       } else {
         submissionSuccess.set(false);
       }
+
       if (Earthstar.isErr(result)) {
         console.error(result);
       }
-      dispatch("success");
-      return result;
+    } else {
+      submissionSuccess.set(false); // If any vote failed, set to false
     }
+
+    dispatch("success");
+    return result;
   }
 
   $: {
@@ -83,13 +115,24 @@
 <div class="flex">
   {#if responses.length > 0}
     {#each responses as response}
-      <button on:click={() => submitVote(response)}>{response}</button>
+      <div class="m-4">
+        <input type="checkbox" id={response} on:change={() => toggleSelection(response)} />
+        <label for={response}>{response}</label>
+      </div>
     {/each}
   {:else}
-  <button on:click={() => submitVote("yes")}>yes 👍</button>
-  <button on:click={() => submitVote("no")}>no 👎</button>
+    <div>
+      <input type="checkbox" id="yes" on:change={() => toggleSelection("yes")} />
+      <label for="yes">yes 👍</label>
+    </div>
+    <div>
+      <input type="checkbox" id="no" on:change={() => toggleSelection("no")} />
+      <label for="no">no 👎</label>
+    </div>
   {/if}
 </div>
+
+<button on:click={submitVote}>Submit</button>
 
 <style>
   h1 {
@@ -98,10 +141,13 @@
   button {
     background-color: #1a1a1a;
     margin-top: 1rem;
-    padding-top: 1rem;
+    padding: 1rem;
     font-size: 1.25rem;
   }
-  button:not(:first-child) {
-    margin-left: 1rem;
+  div {
+    margin-top: 0.5rem;
+  }
+  input[type="checkbox"] {
+    margin-right: 0.5rem;
   }
 </style>
