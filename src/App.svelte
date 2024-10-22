@@ -2,7 +2,7 @@
   import * as Earthstar from "earthstar";
 
   import { onMount, tick } from "svelte";
-  import { fly } from "svelte/transition";
+  import { fade, fly } from "svelte/transition";
   import { getSHA256Hash } from "boring-webcrypto-sha256";
   import settings, { generateID, submissionSuccess, replica } from "./store";
   import { getUrlParam, fetchAllowedVoters, getAllChoices } from "./lib/utils.js";
@@ -46,52 +46,57 @@
   }
 
   onMount(async () => {
-    id = getUrlParam("q");
-    responses = getAllChoices();
+    const configFile = getUrlParam('v'); // Get 'config' param from URL
+    if (configFile) {
+      await loadVoteConfig(configFile); // Load the specified JSON file
+    } else {
+      id = getUrlParam("q");
+      responses = getAllChoices();
 
-    // Check if the 'r' parameter is present to apply restricted voting
-    const restrictedVote = getUrlParam("r");
+      // Check if the 'r' parameter is present to apply restricted voting
+      const restrictedVote = getUrlParam("r");
+
+        if (restrictedVote) {
+        allowedVoters = await fetchAllowedVoters();
+      }
+
+
+      settings.onAuthorChanged(checkIfUserVoted);
+
+      if (!settings.author) {
+
+        const generatedId = await generateID("r");
+        if (!(generatedId instanceof Earthstar.ValidationError)) {
+          settings.author = generatedId;
+        }
+      } 
+
+      if (id) {
+      fetchVotes();
+      checkIfUserVoted(settings.author);
+
+      const currentAuthor = settings.author?.address;
 
       if (restrictedVote) {
-      allowedVoters = await fetchAllowedVoters();
-    }
-
-
-    settings.onAuthorChanged(checkIfUserVoted);
-
-    if (!settings.author) {
-
-      const generatedId = await generateID("r");
-      if (!(generatedId instanceof Earthstar.ValidationError)) {
-        settings.author = generatedId;
-      }
-    } 
-
-    if (id) {
-    fetchVotes();
-    checkIfUserVoted(settings.author);
-
-    const currentAuthor = settings.author?.address;
-
-    if (restrictedVote) {
-      if (allowedVoters && currentAuthor && allowedVoters.includes(currentAuthor)) {
-        showVotingInterface = true;
+        if (allowedVoters && currentAuthor && allowedVoters.includes(currentAuthor)) {
+          showVotingInterface = true;
+        } else {
+          // Allow use to load a different identity
+          showIdentityButton = true;
+        }
       } else {
-        // Allow use to load a different identity
-        showIdentityButton = true;
+        // Open voting, only need to check if the user has voted
+        showVotingInterface = !hasVoted;
       }
-    } else {
-      // Open voting, only need to check if the user has voted
-      showVotingInterface = !hasVoted;
-    }
 
 
-      cache.onCacheUpdated(fetchVotes);
+        cache.onCacheUpdated(fetchVotes);
 
-      const peer = new Earthstar.Peer();
-      peer.addReplica(replica);
-      peer.sync(import.meta.env.VITE_SERVER_ADDRESS, true);
-      settings.addServer(import.meta.env.VITE_SERVER_ADDRESS);
+        const peer = new Earthstar.Peer();
+        peer.addReplica(replica);
+        peer.sync(import.meta.env.VITE_SERVER_ADDRESS, true);
+        settings.addServer(import.meta.env.VITE_SERVER_ADDRESS);
+      }
     }
   });
 
@@ -134,6 +139,28 @@
 
   }
 
+  
+  // Function to load JSON configuration based on URL param
+  async function loadVoteConfig(configFile) {
+    try {
+      const response = await fetch(`./configs/${configFile}`);
+      const config = await response.json();
+
+      id = config.id;
+
+       // Extract responses based on integer keys
+      responses = Object.entries(config)
+        .filter(([key, value]) => /^\d+$/.test(key)) // Filter integer keys
+        .map(([key, value]) => value); // Map values to the responses array
+
+      console.log('responses', responses)
+      console.log('id', id)
+      showVotingInterface = true;
+    } catch (error) {
+      console.error('Error loading vote configuration:', error);
+    }
+  }
+  
   $: if ($submissionSuccess === true || hasVoted === true) {
     showVotingInterface = false;
   }
@@ -144,7 +171,10 @@
 <main>
   <div class='absolute flex flex-col items-center w-full h-full justify-center'>
     {#if !id}
-      <h1>
+      <h1 
+        in:fade={{ duration: 1000}}
+        out:fade={{ duration: 250}}
+      >
         An experimental voting tool built with Earthstar.
       </h1>
     {:else}
@@ -201,19 +231,6 @@
   main {
     display: flex;
     flex-direction: column;
-  }
-  .results {
-    font-size: 2rem;
-    border-radius: 0.5rem;
-    padding: 1rem;
-    border: 1px solid #9900FC;
-    text-align: center;
-    margin: 1rem;
-    width: fit-content;
-  }
-  .txt {
-    font-size: 2.5rem;
-    font-weight: bold;
   }
   #bottomButton {
     position: fixed;
