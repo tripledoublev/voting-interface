@@ -7,7 +7,7 @@
     <h2>Results</h2>
     <div class="flex flex-col sm:flex-row ml-5">
         {#each Object.entries(voteCounts) as [response, count]}
-            <div class="results flex flex-col">
+            <div class="results flex flex-col m-5">
                 <span class="txt">{count}</span> {response}
             </div>
         {/each}
