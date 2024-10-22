@@ -164,11 +164,12 @@
 </script>
 
 <main>
-  <div class='absolute flex flex-col items-center w-full h-full justify-center'>
+  <div class='flex flex-col items-center w-full h-full justify-center'>
     {#if loading} 
       <!-- Display a loading spinner if needed -->
     {:else if !id}
-      <h1 in:fade={{ duration: 1000}} out:fade={{ duration: 250 }}>
+      <h1 style="margin-top:5rem; margin-left:2rem;"
+        in:fade={{ duration: 1000}} out:fade={{ duration: 250 }}>
         An experimental voting tool built with Earthstar.
       </h1>
     {:else}
