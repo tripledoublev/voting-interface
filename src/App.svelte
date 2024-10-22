@@ -15,6 +15,7 @@
   let showVotingInterface = false;
   let hasVoted = false;
   let showIdentityButton = false;
+  let loading = true;
 
   let allowedVoters = null;
 
@@ -98,6 +99,8 @@
         settings.addServer(import.meta.env.VITE_SERVER_ADDRESS);
       }
     }
+
+    loading = false;
   });
 
   async function fetchVotes() {
@@ -158,6 +161,8 @@
       showVotingInterface = true;
     } catch (error) {
       console.error('Error loading vote configuration:', error);
+    } finally {
+      loading = false; 
     }
   }
   
@@ -170,7 +175,10 @@
 
 <main>
   <div class='absolute flex flex-col items-center w-full h-full justify-center'>
-    {#if !id}
+    {#if loading} 
+      <!-- Currently showing nothing as it usually loads under 1 second  -->
+      <!-- If needed this is where we would display a loading message while config is loading -->
+    {:else if !id}
       <h1 
         in:fade={{ duration: 1000}}
         out:fade={{ duration: 250}}
