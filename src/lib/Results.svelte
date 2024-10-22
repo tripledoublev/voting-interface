@@ -9,7 +9,9 @@
     $: votedEntries = Object.entries(voteCounts).filter(([response, count]) => response === 'Voted');
 
     // Remove "Voted" entries from voteCounts to display actual votes
-    $: filteredVoteCounts = Object.entries(voteCounts).filter(([response, count]) => response !== 'Voted');
+    $: filteredVoteCounts = Object.entries(voteCounts)
+        .filter(([response, count]) => response !== 'Voted')
+        .sort((a, b) => b[1] - a[1]);
 </script>
 
 <div class="m-4">
