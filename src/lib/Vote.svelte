@@ -112,7 +112,7 @@
 <h1>
   {@html id}
 </h1>
-<div class="flex">
+<div class="flex flex-col">
   {#if responses.length > 0}
     {#each responses as response}
       <div class="m-4">
@@ -136,7 +136,7 @@
 
 <style>
   h1 {
-    text-align: center;
+    text-align: left;
   }
   button {
     background-color: #1a1a1a;
