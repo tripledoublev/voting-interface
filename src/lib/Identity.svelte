@@ -119,8 +119,8 @@
       margin-right: 0.5rem;
     }
     .bg-black {
-      background-color: var(--black);
-      border-top: 1px solid var(--white);
+      background-color: black;
+      border-top: 1px solid white;
       padding: 1rem;
       overflow-x: auto;
     }
