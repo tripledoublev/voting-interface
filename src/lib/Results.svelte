@@ -25,7 +25,7 @@
 
     <!-- Add another section for Voted Entries -->
     {#if votedEntries.length > 0}
-      <div class="m-4">
+      <div>
           <h2>Participants</h2>
           <div class="flex flex-col sm:flex-row ml-5">
               <div class="results flex flex-col m-5">
