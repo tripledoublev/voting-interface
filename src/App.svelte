@@ -29,6 +29,7 @@
 
   let footerHeight = 0;
 
+  // Function to toggle the identity section
   async function toggleIdentity() {
     showIdentity = !showIdentity;
 
@@ -40,71 +41,65 @@
     footerHeight = footer ? footer.clientHeight : 0;
   }
 
+  // Check if the user has already voted
   function checkIfUserVoted(newKeypair) {
-    if (voters && newKeypair.address) {
+    if (voters && newKeypair?.address) {
       hasVoted = voters.some((doc) => doc.author === newKeypair.address);
     }
   }
 
-  onMount(async () => {
-    const configFile = getUrlParam('v'); // Get 'config' param from URL
+  // Abstract the config or URL param logic
+  async function checkForConfigOrParams() {
+    const configFile = getUrlParam('v');
     if (configFile) {
-      await loadVoteConfig(configFile); // Load the specified JSON file
+      await loadVoteConfig(configFile); // Load from the config
     } else {
+      // Load directly from URL params
       id = getUrlParam("q");
       responses = getAllChoices();
+      await handleRestrictedVoting(); // Handle restricted votes if needed
+    }
 
-      // Check if the 'r' parameter is present to apply restricted voting
-      const restrictedVote = getUrlParam("r");
-
-        if (restrictedVote) {
-        allowedVoters = await fetchAllowedVoters();
-      }
-
-
-      settings.onAuthorChanged(checkIfUserVoted);
-
-      if (!settings.author) {
-
-        const generatedId = await generateID("r");
-        if (!(generatedId instanceof Earthstar.ValidationError)) {
-          settings.author = generatedId;
-        }
-      } 
-
-      if (id) {
-      fetchVotes();
-      checkIfUserVoted(settings.author);
-
-      const currentAuthor = settings.author?.address;
-
-      if (restrictedVote) {
-        if (allowedVoters && currentAuthor && allowedVoters.includes(currentAuthor)) {
-          showVotingInterface = true;
-        } else {
-          // Allow use to load a different identity
-          showIdentityButton = true;
-        }
-      } else {
-        // Open voting, only need to check if the user has voted
-        showVotingInterface = !hasVoted;
-      }
-
-
-        cache.onCacheUpdated(fetchVotes);
-
-        const peer = new Earthstar.Peer();
-        peer.addReplica(replica);
-        peer.sync(import.meta.env.VITE_SERVER_ADDRESS, true);
-        settings.addServer(import.meta.env.VITE_SERVER_ADDRESS);
+    // Initialize author if not set
+    if (!settings.author) {
+      const generatedId = await generateID("r");
+      if (!(generatedId instanceof Earthstar.ValidationError)) {
+        settings.author = generatedId;
       }
     }
 
-    loading = false;
-  });
+    if (id) {
+      await fetchVotes();
+      checkIfUserVoted(settings.author);
+      toggleVotingInterface();
+      startPeerSync(); // Initialize peer syncing
+    }
+  }
 
+  // Handle restricted voting if the 'r' param is present
+  async function handleRestrictedVoting() {
+    const restrictedVote = getUrlParam("r");
+    if (restrictedVote) {
+      allowedVoters = await fetchAllowedVoters();
+      const currentAuthor = settings.author?.address;
+
+      if (allowedVoters && currentAuthor && !allowedVoters.includes(currentAuthor)) {
+        showIdentityButton = true; // Show the identity switcher
+      }
+    }
+  }
+
+  // Toggle voting interface visibility based on voting status
+  function toggleVotingInterface() {
+    if (hasVoted) {
+      showVotingInterface = false;
+    } else {
+      showVotingInterface = true;
+    }
+  }
+
+  // Fetch the votes and calculate vote counts
   async function fetchVotes() {
-
     let hash = await getSHA256Hash(id);
 
     const allDocuments = await cache.queryDocs({
@@ -112,123 +107,98 @@
     });
 
     const documents = allDocuments.filter(doc => !doc.path.endsWith('voter'));
-
-    console.log('documents', documents)
     if (documents.length >= 0) {
-      // Check for document text that contains 'Voted'
       voters = allDocuments.filter((doc) => doc.text.includes("Voted"));
-      
 
       if (responses && responses.length > 0) {
         voteCounts = {};
         documents.forEach((doc) => {
-          const vote = doc.text; 
-      if (voteCounts[vote]) {
-        voteCounts[vote] += 1;
-      } else {
-        voteCounts[vote] = 1;
-      }
-    });
-
-      } else {
-      // Check for the number of positive votes
-      positiveVotes = documents.filter((doc) => doc.text === "yes");
-
-      // Check for the number of negative votes
-      negativeVotes = documents.filter((doc) => doc.text === "no");
+          const vote = doc.text;
+          voteCounts[vote] = (voteCounts[vote] || 0) + 1;
+        });
       }
       checkIfUserVoted(settings.author);
     }
-
   }
 
-  
-  // Function to load JSON configuration based on URL param
+  // Load vote config based on the URL param
   async function loadVoteConfig(configFile) {
     try {
       const response = await fetch(`./configs/${configFile}`);
       const config = await response.json();
 
       id = config.id;
-
-       // Extract responses based on integer keys
       responses = Object.entries(config)
-        .filter(([key, value]) => /^\d+$/.test(key)) // Filter integer keys
-        .map(([key, value]) => value); // Map values to the responses array
+        .filter(([key]) => /^\d+$/.test(key))
+        .map(([, value]) => value); // Extract only the response values
 
-      console.log('responses', responses)
-      console.log('id', id)
-      showVotingInterface = true;
+      await fetchVotes(); // Fetch votes after loading config
+      checkIfUserVoted(settings.author); // Check voting status
+      toggleVotingInterface(); // Decide if we show the voting interface
     } catch (error) {
       console.error('Error loading vote configuration:', error);
     } finally {
-      loading = false; 
+      loading = false; // Mark loading complete
     }
   }
-  
+
+  // Initialize peer synchronization for Earthstar
+  function startPeerSync() {
+    const peer = new Earthstar.Peer();
+    peer.addReplica(replica);
+    peer.sync(import.meta.env.VITE_SERVER_ADDRESS, true);
+    settings.addServer(import.meta.env.VITE_SERVER_ADDRESS);
+    cache.onCacheUpdated(fetchVotes);
+  }
+
+  // When the component mounts, start by checking for configs or URL params
+  onMount(async () => {
+    await checkForConfigOrParams();
+    loading = false; // Mark loading complete
+  });
+
+  // Watch for submission success or hasVoted and hide the voting interface
   $: if ($submissionSuccess === true || hasVoted === true) {
     showVotingInterface = false;
   }
-
-
 </script>
 
 <main>
   <div class='absolute flex flex-col items-center w-full h-full justify-center'>
     {#if loading} 
-      <!-- Currently showing nothing as it usually loads under 1 second  -->
-      <!-- If needed this is where we would display a loading message while config is loading -->
+      <!-- Display a loading spinner if needed -->
     {:else if !id}
-      <h1 
-        in:fade={{ duration: 1000}}
-        out:fade={{ duration: 250}}
-      >
+      <h1 in:fade={{ duration: 1000}} out:fade={{ duration: 250 }}>
         An experimental voting tool built with Earthstar.
       </h1>
     {:else}
       {#if showVotingInterface}
-        <div
-          in:fly={{ y: -400, duration: 5000 }}
-          out:fly={{ y: -400, duration: 3000 }}
-          class="absolute flex flex-col items-center w-full h-full justify-center"
-        >
+        <div in:fly={{ y: -400, duration: 3000 }} out:fly={{ y: -400, duration: 3000 }}
+          class="absolute flex flex-col items-center w-full h-full justify-center">
           <Vote {id} on:success={fetchVotes} {responses}/>
         </div>
       {:else if hasVoted}
-        <div
-          in:fly={{ y: 1000, duration: 8000 }}
-          out:fly={{ y: 1200, duration: 1200 }}
-        >
+        <div in:fly={{ y: 1000, duration: 3000 }} out:fly={{ y: 1200, duration: 1200 }}>
           <Results {id} {voteCounts} />
         </div>
       {:else}
-        <div 
-          in:fly={{ y: 1200, duration: 1200 }}
-          out:fly={{ y: 1200, duration: 1200 }}
-          >
+        <div in:fly={{ y: 1200, duration: 1200 }} out:fly={{ y: 1200, duration: 1200 }}>
           <h2>
-          This is a private vote. You are not allowed to vote with your current identity. Please use the keypair management tool at the bottom right of the screen to load the adequate identity.
-            </h2>
+            This is a private vote. You are not allowed to vote with your current identity. Please use the keypair management tool at the bottom right of the screen to load the adequate identity.
+          </h2>
         </div>
       {/if}
     {/if}
   </div>
 </main>
+
 {#if showIdentityButton}
   <div class="flex flex-col">
-    <div
-      id="bottomButton"
-      style="bottom: {showIdentity ? `${footerHeight}px` : '0'};"
-    >
-      <button on:click={toggleIdentity}>keypair management</button>
+    <div id="bottomButton" style="bottom: {showIdentity ? `${footerHeight}px` : '0'};">
+      <button on:click={toggleIdentity}>Keypair management</button>
     </div>
-
     {#if showIdentity}
-      <div
-        id="IdentityFooter"
-        in:fly={{ y: 300, duration: 900 }}
-        out:fly={{ y: 300, duration: 900 }}
-      >
+      <div id="IdentityFooter" in:fly={{ y: 300, duration: 900 }} out:fly={{ y: 300, duration: 900 }}>
         <Identity />
       </div>
     {/if}
