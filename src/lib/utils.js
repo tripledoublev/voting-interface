@@ -16,16 +16,16 @@ export const getUrlParam = (key) => {
     return null; 
   };
 
-  export const getAllResponses = () => {
-    const responses = [];
+  export const getAllChoices = () => {
+    const choices = [];
     for (let i = 0; i <= 9; i++) {
       const response = getResponse(i.toString());
       if (response !== null) {
-        responses.push(response);
+        choices.push(response);
       }
     }
-    console.log({responses})
-    return responses;
+    console.log({choices})
+    return choices;
   };
 
   export const fetchAllowedVoters = async () => {
