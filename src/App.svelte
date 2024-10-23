@@ -182,7 +182,7 @@
         </div>
       {:else if hasVoted}
         <div in:fly={{ y: 1000, duration: 3000 }} out:fly={{ y: 1200, duration: 1200 }}>
-          <Results {id} {voteCounts} />
+          <Results {id} {voteCounts} {year}/>
         </div>
       {:else}
         <div in:fly={{ y: 1200, duration: 1200 }} out:fly={{ y: 1200, duration: 1200 }}>
