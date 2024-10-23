@@ -18,6 +18,7 @@
   let uniqueIdentifier;
 
   export let responses = [];
+  export let year;
 
   let selectedResponses = new Set(); // Store selected responses
 
@@ -109,30 +110,37 @@
     }
   }
 </script>
-<h1>
-  {@html id}
-</h1>
 <div class="flex flex-col">
-  {#if responses.length > 0}
-    {#each responses as response}
-      <div class="m-4">
-        <input type="checkbox" id={response} on:change={() => toggleSelection(response)} />
-        <label for={response}>{response}</label>
-      </div>
-    {/each}
-  {:else}
-    <div>
-      <input type="checkbox" id="yes" on:change={() => toggleSelection("yes")} />
-      <label for="yes">yes 👍</label>
-    </div>
-    <div>
-      <input type="checkbox" id="no" on:change={() => toggleSelection("no")} />
-      <label for="no">no 👎</label>
-    </div>
+  {#if year}
+    <h1>
+      {year}
+    </h1>
   {/if}
+  <h1>
+    {@html id}
+  </h1>
+  <div class="flex flex-col">
+    {#if responses.length > 0}
+      {#each responses as response}
+        <div class="m-4">
+          <input type="checkbox" id={response} on:change={() => toggleSelection(response)} />
+          <label for={response}>{response}</label>
+        </div>
+      {/each}
+    {:else}
+      <div>
+        <input type="checkbox" id="yes" on:change={() => toggleSelection("yes")} />
+        <label for="yes">yes 👍</label>
+      </div>
+      <div>
+        <input type="checkbox" id="no" on:change={() => toggleSelection("no")} />
+        <label for="no">no 👎</label>
+      </div>
+    {/if}
+  </div>
+  <button class="m-4" on:click={submitVote}>Submit</button>
 </div>
 
-<button on:click={submitVote}>Submit</button>
 
 <style>
   h1 {
@@ -149,5 +157,11 @@
   }
   input[type="checkbox"] {
     margin-right: 0.5rem;
+  }
+  button {
+    width: fit-content;
+  }
+  label {
+    font-size: 1.25rem;
   }
 </style>
