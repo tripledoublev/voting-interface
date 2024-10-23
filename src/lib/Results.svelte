@@ -1,6 +1,7 @@
 <script>
     export let id;
     export let voteCounts = {}; // Only voteCounts will be passed in
+    export let year;
 
     // Create a reactive variable for votedEntries
     let votedEntries = [];
@@ -15,9 +16,18 @@
 </script>
 
 <div class="m-4">
+    <h2>
+        Thanks for voting! Your vote has been recorded.
+    </h2>
+
+    {#if year}
+        <h1>{year}</h1>
+    {/if}
+     
     <h1>{@html id}</h1>
+
     <h2>Results</h2>
-    <div class="flex flex-col sm:flex-row ml-5">
+    <div class="flex flex-col lg:flex-row ml-5 max-w-5xl">
         {#each filteredVoteCounts as [response, count]}
             <div class="results flex flex-col m-5">
                 <span class="txt">{count}</span> {response}
@@ -43,12 +53,17 @@
         border: 1px dashed #f3f3f3;
         padding: 1rem 2rem;
         border-radius: 0.5rem;
+        font-size: 1.25rem;
     }
     .txt {
         font-weight: bolder;
         text-decoration: underline;
     }
-    h2 {
-        padding-bottom: 0;
+    h1 {
+        font-size: 2rem;
     }
+    h2 {
+        font-size: 1.5rem;
+    }
+    
 </style>
