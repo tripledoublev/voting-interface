@@ -51,6 +51,13 @@
   // Abstract the config or URL param logic
   async function checkForConfigOrParams() {
     const configFile = getUrlParam('v');
+
+    // Check for the URL param 'showIdentity' and set showIdentityButton accordingly
+    const showIdentityParam = getUrlParam('identity');
+    if (showIdentityParam === 'true') {
+      showIdentityButton = true;
+    }
+    
     if (configFile) {
       await loadVoteConfig(configFile); // Load from the config
     } else {
