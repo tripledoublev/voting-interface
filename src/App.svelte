@@ -20,7 +20,7 @@
   let allowedVoters = null;
 
   let responses = [];
-
+  let year;
   let voteCounts = {};
 
   let id, positiveVotes, negativeVotes, voters;
@@ -132,6 +132,8 @@
         .filter(([key]) => /^\d+$/.test(key))
         .map(([, value]) => value); // Extract only the response values
 
+      year = config.year;
+
       await fetchVotes(); // Fetch votes after loading config
       checkIfUserVoted(settings.author); // Check voting status
       toggleVotingInterface(); // Decide if we show the voting interface
@@ -164,19 +166,19 @@
 </script>
 
 <main>
-  <div class='absolute flex flex-col items-center w-full h-full justify-center'>
+  <div class='absolute flex flex-col items-center w-full h-full lg:justify-center'>
     {#if loading} 
       <!-- Display a loading spinner if needed -->
     {:else if !id}
-      <h1 style="margin-top:5rem; margin-left:2rem;"
+      <h1 
         in:fade={{ duration: 1000}} out:fade={{ duration: 250 }}>
         An experimental voting tool built with Earthstar.
       </h1>
     {:else}
       {#if showVotingInterface}
         <div in:fly={{ y: -400, duration: 3000 }} out:fly={{ y: -400, duration: 3000 }}
-          class="absolute flex flex-col items-center w-full h-full justify-center">
-          <Vote {id} on:success={fetchVotes} {responses}/>
+          class="absolute flex flex-col items-center w-full h-full lg:justify-center">
+          <Vote {id} on:success={fetchVotes} {responses} {year} />
         </div>
       {:else if hasVoted}
         <div in:fly={{ y: 1000, duration: 3000 }} out:fly={{ y: 1200, duration: 1200 }}>
