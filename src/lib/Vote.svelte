@@ -21,6 +21,8 @@
   export let year;
 
   let selectedResponses = new Set(); // Store selected responses
+  let isDisabled = false;
+  let allVotesSuccess = true;
 
   // Function to toggle the selection of responses
   function toggleSelection(response) {
@@ -33,15 +35,16 @@
 
   // Function to submit the selected responses
   async function submitVote() {
-    // Handle the vote submission to earthstar
+    // Disable the button to prevent double submission
+    isDisabled = true;
 
-
+    // Disabled for easier troubleshooting
+    // Create a new identity to protect voters' privacy
+    //anon = await generateID("anon");
 
     // for valid path, hash(sha256) the id
     const hash = await getSHA256Hash(id);
     console.log('hash', hash);
-
-    let allVotesSuccess = true;
 
     // Submit each selected response
     for (let decision of selectedResponses) {
@@ -61,12 +64,9 @@
         text: docText,
       };
 
-      // Create a new identity to protect voters' privacy
-      anon = await generateID("anon");
-
       // Set the document to the earthstar replica
       if (!(anon instanceof Earthstar.ValidationError)) {
-        voteResult = await replica.set(anon, thisDoc);
+        voteResult = await replica.set(authorKeypair, thisDoc);
         console.log('result', voteResult);
 
         if (voteResult.kind !== "success") {
@@ -138,7 +138,13 @@
       </div>
     {/if}
   </div>
-  <button class="m-4" on:click={submitVote}>Submit</button>
+  <button class="m-4" on:click={submitVote} disabled={isDisabled}>Submit</button>
+  {#if !allVotesSuccess}
+    <p class="error">There was an error and your vote was not submitted. Please try again.</p>
+    <p>
+      Here is the error message: {result.kind}
+    </p>
+  {/if}
 </div>
 
 

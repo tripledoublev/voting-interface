@@ -107,6 +107,7 @@
     });
 
     const documents = allDocuments.filter(doc => !doc.path.endsWith('voter'));
+    console.log(documents);
     if (documents.length >= 0) {
       voters = allDocuments.filter((doc) => doc.text.includes("Voted"));
 
