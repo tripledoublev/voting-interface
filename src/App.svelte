@@ -164,7 +164,7 @@
 </script>
 
 <main>
-  <div class='flex flex-col items-center w-full h-full justify-center'>
+  <div class='absolute flex flex-col items-center w-full h-full justify-center'>
     {#if loading} 
       <!-- Display a loading spinner if needed -->
     {:else if !id}
