@@ -11,7 +11,7 @@
 
     // Remove "Voted" entries from voteCounts to display actual votes
     $: filteredVoteCounts = Object.entries(voteCounts)
-        .filter(([response, count]) => response !== 'Voted')
+        .filter(([response, count]) => response !== 'Voted' && response.trim() !== '')
         .sort((a, b) => b[1] - a[1]);
 </script>
 
