@@ -1,4 +1,6 @@
 <script>
+    import ExportCSV from './ExportCSV.svelte';
+
     export let id;
     export let voteCounts = {}; // Only voteCounts will be passed in
     export let year;
@@ -46,6 +48,8 @@
           </div>
       </div>
     {/if}
+
+    <ExportCSV data={voteCounts} filename="vote_results.csv" />
 </div>
 
 <style>
