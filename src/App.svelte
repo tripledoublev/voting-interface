@@ -100,12 +100,27 @@
   }
 
   // Toggle voting interface visibility based on voting status
-  function toggleVotingInterface() {
+  async function toggleVotingInterface() {
+    if (restrictedVote) {
+      currentAuthor = settings.author?.address;
+      if (!currentAuthor) {
+        const generatedId = await generateID("r");
+        if (!(generatedId instanceof Earthstar.ValidationError)) {
+          settings.author = generatedId;
+          currentAuthor = settings.author.address;
+        }
+      }
+      if (allowedVoters && currentAuthor && !allowedVoters.includes(currentAuthor)) {
+        showVotingInterface = false;
+      } else {
     if (hasVoted) {
       showVotingInterface = false;
     } else {
       showVotingInterface = true;
+        }
     }
+    }
+   
   }
 
   // Fetch the votes and calculate vote counts
