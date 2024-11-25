@@ -137,7 +137,7 @@
       id = config.id;
       responses = Object.entries(config)
         .filter(([key]) => /^\d+$/.test(key))
-        .map(([, value]) => value); // Extract only the response values
+        .map(([, value]) => value);
 
       year = config.year;
 
