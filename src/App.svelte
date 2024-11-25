@@ -114,7 +114,6 @@
     });
 
     const documents = allDocuments.filter(doc => doc.text.trim() !== "");
-    console.log(documents);
     if (documents.length >= 0) {
       voters = allDocuments.filter((doc) => doc.text.includes("Voted"));
 
@@ -126,7 +125,6 @@
         });
       }
       checkIfUserVoted(settings.author);
-      console.log(voteCounts);
     }
   }
 
