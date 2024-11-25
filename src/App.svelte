@@ -16,6 +16,9 @@
   let hasVoted = false;
   let showIdentityButton = false;
   let loading = true;
+  let restrictedVote = false;
+
+  let currentAuthor;
 
   let allowedVoters = null;
 
