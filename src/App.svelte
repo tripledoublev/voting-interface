@@ -54,35 +54,36 @@
   // Abstract the config or URL param logic
   async function checkForConfigOrParams() {
     const configFile = getUrlParam('v');
-
-    // Check for the URL param 'showIdentity' and set showIdentityButton accordingly
-    const showIdentityParam = getUrlParam('identity');
-    if (showIdentityParam === 'true') {
-      showIdentityButton = true;
-    }
-    
     if (configFile) {
-      await loadVoteConfig(configFile); // Load from the config
+      // Load from the config file
+      await loadVoteConfig(configFile);
+      startPeerSync(); // Initialize peer syncing
     } else {
-      // Load directly from URL params
+      // Or load directly from URL params
       id = getUrlParam("q");
       responses = getAllChoices();
       await handleRestrictedVoting(); // Handle restricted votes if needed
-    }
 
-    // Initialize author if not set
-    if (!settings.author) {
-      const generatedId = await generateID("r");
-      if (!(generatedId instanceof Earthstar.ValidationError)) {
-        settings.author = generatedId;
+      // Check for the URL param 'showIdentity' and set showIdentityButton accordingly
+      const showIdentityParam = getUrlParam('identity');
+      if (showIdentityParam === 'true') {
+        showIdentityButton = true;
       }
-    }
+      
+      // Initialize author if not set
+      if (!settings.author) {
+        const generatedId = await generateID("r");
+        if (!(generatedId instanceof Earthstar.ValidationError)) {
+          settings.author = generatedId;
+        }
+      }
 
-    if (id) {
-      await fetchVotes();
-      checkIfUserVoted(settings.author);
-      toggleVotingInterface();
-      startPeerSync(); // Initialize peer syncing
+      if (id) {
+        await fetchVotes();
+        checkIfUserVoted(settings.author);
+        toggleVotingInterface();
+        startPeerSync(); // Initialize peer syncing
+      }
     }
   }
 
@@ -113,14 +114,14 @@
       if (allowedVoters && currentAuthor && !allowedVoters.includes(currentAuthor)) {
         showVotingInterface = false;
       } else {
-    if (hasVoted) {
-      showVotingInterface = false;
-    } else {
-      showVotingInterface = true;
+        if (hasVoted) {
+          showVotingInterface = false;
+        } else {
+          showVotingInterface = true;
         }
+      }
     }
-    }
-   
+
   }
 
   // Fetch the votes and calculate vote counts
