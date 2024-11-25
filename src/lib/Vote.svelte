@@ -38,9 +38,8 @@
     // Disable the button to prevent double submission
     isDisabled = true;
 
-    // Disabled for easier troubleshooting
     // Create a new identity to protect voters' privacy
-    //anon = await generateID("anon");
+    anon = await generateID("anon");
 
     // for valid path, hash(sha256) the id
     const hash = await getSHA256Hash(id);
@@ -66,7 +65,7 @@
 
       // Set the document to the earthstar replica
       if (!(anon instanceof Earthstar.ValidationError)) {
-        voteResult = await replica.set(authorKeypair, thisDoc);
+        voteResult = await replica.set(anon, thisDoc);
         console.log('result', voteResult);
 
         if (voteResult.kind !== "success") {
