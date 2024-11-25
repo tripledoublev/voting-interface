@@ -85,12 +85,12 @@
 
   // Handle restricted voting if the 'r' param is present
   async function handleRestrictedVoting() {
-    const restrictedVote = getUrlParam("r");
-    if (restrictedVote) {
-      allowedVoters = await fetchAllowedVoters();
-      const currentAuthor = settings.author?.address;
+    const allowedVoters = getUrlParam("r");
+    if (allowedVoters) {
+      const votersList = await fetchAllowedVoters(allowedVoters);
+      currentAuthor = settings.author?.address;
 
-      if (allowedVoters && currentAuthor && !allowedVoters.includes(currentAuthor)) {
+      if (votersList && currentAuthor && !votersList.includes(currentAuthor)) {
         showIdentityButton = true; // Show the identity switcher
       }
     }
