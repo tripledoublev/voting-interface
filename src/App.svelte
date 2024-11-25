@@ -143,6 +143,19 @@
 
       year = config.year;
 
+      if (config.identity === "true") {
+        showIdentityButton = true;
+      }
+
+      if (config.r) {
+        console.log('fetching allowed voters');
+        console.log('config.r:', config.r);
+        restrictedVote = true;
+        allowedVoters = await fetchAllowedVoters(config.r)
+      }
+
+      console.log('allowed voters in App:', allowedVoters);
+
       await fetchVotes(); // Fetch votes after loading config
       checkIfUserVoted(settings.author); // Check voting status
       toggleVotingInterface(); // Decide if we show the voting interface
