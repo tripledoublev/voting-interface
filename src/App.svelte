@@ -175,7 +175,7 @@
 </script>
 
 <main>
-  <div class='absolute flex flex-col items-center w-full h-full lg:justify-center'>
+  <div class='absolute flex flex-col items-center w-full h-full lg:justify-start'>
     {#if loading} 
       <!-- Display a loading spinner if needed -->
     {:else if !id}
@@ -186,7 +186,7 @@
     {:else}
       {#if showVotingInterface}
         <div in:fly={{ y: -400, duration: 3000 }} out:fly={{ y: -400, duration: 3000 }}
-          class="absolute flex flex-col items-center w-full h-full lg:justify-center">
+          class="absolute flex flex-col items-center w-full h-full lg:justify-start">
           <Vote {id} on:success={fetchVotes} {responses} {year} />
         </div>
       {:else if hasVoted}
