@@ -196,7 +196,7 @@
       {:else}
         <div in:fly={{ y: 1200, duration: 1200 }} out:fly={{ y: 1200, duration: 1200 }}>
           <h2>
-            This is a private vote. You are not allowed to vote with your current identity. Please use the keypair management tool at the bottom right of the screen to load the adequate identity.
+            This is a private vote. The loaded keypair is not authorized to participate in this vote. Click the button in the bottom-right corner of the screen to access keypair management.
           </h2>
         </div>
       {/if}
