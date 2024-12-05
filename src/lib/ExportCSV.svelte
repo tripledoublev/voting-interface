@@ -2,6 +2,15 @@
     export let data = {}; // Expecting data as an object, like `voteCounts`
     export let filename = 'export.csv';
 
+    // Function to safely encapsulate and escape CSV data
+    const escapeForCSV = (value) => {
+        if (typeof value === "string") {
+            // Escape double quotes by doubling them and encapsulate in quotes
+            return `"${value.replace(/"/g, '""')}"`;
+        }
+        return value; // If not a string, return as is (numbers, etc.)
+    };
+
     // Function to convert the data into CSV format and trigger download
     const downloadCSV = () => {
         // Convert data to array of entries if needed
@@ -9,10 +18,10 @@
 
         // Create CSV headers
         let csvContent = "data:text/csv;charset=utf-8,Response,Count\n";
-        
+
         // Loop through entries and add rows to CSV
         entries.forEach(([response, count]) => {
-            csvContent += `${response},${count}\n`;
+            csvContent += `${escapeForCSV(response)},${escapeForCSV(count)}\n`;
         });
 
         // Create a download link and trigger it
