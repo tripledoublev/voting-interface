@@ -1,5 +1,6 @@
 <script>
     import ExportCSV from './ExportCSV.svelte';
+    import { getSHA256Hash } from 'boring-webcrypto-sha256';
 
     export let id;
     export let voteCounts = {}; // Only voteCounts will be passed in
@@ -15,8 +16,14 @@
     $: filteredVoteCounts = Object.entries(voteCounts)
         .filter(([response, count]) => response !== 'Voted' && response.trim() !== '')
         .sort((a, b) => b[1] - a[1]);
-</script>
 
+    // Generate a unique hash for the question (id)
+    let questionHash = '';
+    $: (async () => {
+        questionHash = await getSHA256Hash(id);
+    })();
+
+</script>
 <div class="m-4">
     <h2>
         Thanks for voting! Your vote has been recorded.
@@ -50,6 +57,12 @@
     {/if}
 
     <ExportCSV data={voteCounts} filename="vote_results.csv" />
+
+    <!-- Display the unique URL for accessing the results -->
+    <div>
+        <h2>Results unique ID</h2>
+        <p>{questionHash}</p>
+    </div>
 </div>
 
 <style>
