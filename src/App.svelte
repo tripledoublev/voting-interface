@@ -17,10 +17,10 @@
   let showIdentityButton = false;
   let loading = true;
   let restrictedVote = false;
+  let allowedVoters = null;
+  let votersList = [];
 
   let currentAuthor;
-
-  let allowedVoters = null;
 
   let responses = [];
   let year;
@@ -89,12 +89,14 @@
 
   // Handle restricted voting if the 'r' param is present
   async function handleRestrictedVoting() {
-    const allowedVoters = getUrlParam("r");
+    allowedVoters = getUrlParam("r");
     if (allowedVoters) {
-      const votersList = await fetchAllowedVoters(allowedVoters);
-      currentAuthor = settings.author?.address;
+      restrictedVote = true;
+      votersList = await fetchAllowedVoters(allowedVoters);
 
+      currentAuthor = settings.author?.address;
       if (votersList && currentAuthor && !votersList.includes(currentAuthor)) {
+        console.log('voter is not part of allowedVoters')
         showIdentityButton = true; // Show the identity switcher
       }
     }
@@ -111,13 +113,16 @@
           currentAuthor = settings.author.address;
         }
       }
-      if (allowedVoters && currentAuthor && !allowedVoters.includes(currentAuthor)) {
-        showVotingInterface = false;
-      } else {
-        if (hasVoted) {
+      if (restrictedVote && allowedVoters && currentAuthor) {
+        if (!votersList.includes(currentAuthor)) {
           showVotingInterface = false;
+          console.log('voter is not part of allowedVoters');
+        } else if (hasVoted) {
+          showVotingInterface = false;
+          console.log('voter has already voted');
         } else {
           showVotingInterface = true;
+          console.log('voter has not voted yet and is allowed to vote');
         }
       }
     }
@@ -166,12 +171,10 @@
 
       if (config.r) {
         console.log('fetching allowed voters');
-        console.log('config.r:', config.r);
         restrictedVote = true;
         allowedVoters = await fetchAllowedVoters(config.r)
       }
 
-      console.log('allowed voters in App:', allowedVoters);
 
       await fetchVotes(); // Fetch votes after loading config
       checkIfUserVoted(settings.author); // Check voting status
