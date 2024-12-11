@@ -8,23 +8,20 @@ export const getUrlParam = (key) => {
 
   const getResponse = (key) => {
     const response = getUrlParam(key);
-    console.log('1,', {response})
-    if (response && key.match(/[0-9]/)) {
-      console.log('2,', {response})
+    if (response && key.match(/^\d+$/)) { 
       return response;
     }
-    return null; 
+    return null;
   };
 
   export const getAllChoices = () => {
     const choices = [];
-    for (let i = 0; i <= 9; i++) {
+    for (let i = 0; i <= 12; i++) {
       const response = getResponse(i.toString());
       if (response !== null) {
         choices.push(response);
       }
     }
-    console.log({choices})
     return choices;
   };
 
