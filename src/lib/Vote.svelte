@@ -49,7 +49,6 @@
     for (let decision of selectedResponses) {
       // Generate a unique timestamp or identifier for each vote
       uniqueIdentifier = Math.round(new Date().getTime() + Math.random());
-      console.log('uniqueIdentifier', uniqueIdentifier);
       
       // Question ID
       let docPath = '/' + hash + '/' + uniqueIdentifier;
@@ -66,7 +65,6 @@
       // Set the document to the earthstar replica
       if (!(anon instanceof Earthstar.ValidationError)) {
         voteResult = await replica.set(anon, thisDoc);
-        console.log('result', voteResult);
 
         if (voteResult.kind !== "success") {
           allVotesSuccess = false; // Mark failure if any vote submission fails
@@ -84,7 +82,6 @@
 
       // Set the "Voted" document
       result = await replica.set(authorKeypair, votedDoc);
-      console.log('voted___result', result);
 
       if (result.kind === "success") {
         submissionSuccess.set(true);
@@ -115,13 +112,13 @@
       {year}
     </h1>
   {/if}
-  <h1>
+  <h1  class="mt-12">
     {@html id}
   </h1>
-  <div class="flex flex-col">
+  <div class="flex flex-row flex-wrap max-w-lg">
     {#if responses.length > 0}
       {#each responses as response}
-        <div class="m-4">
+        <div class="m-8">
           <input type="checkbox" id={response} on:change={() => toggleSelection(response)} />
           <label for={response}>{response}</label>
         </div>
