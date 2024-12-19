@@ -47,8 +47,9 @@ To load vote data from a config file, use the `v` URL param. Place the config fi
 ```
 
 ## Running it locally
-You can run this voting interface locally.
-After cloning this repository, once in the project's folder, you can follow these steps to install and run this web app:
+You can run **Constellate** locally to test or customize its functionality.  
+After cloning this repository, navigate to the project folder and run the following commands to install dependencies and start the development server:
+
 ```
 npm install
 npm run dev
