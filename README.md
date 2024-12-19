@@ -14,7 +14,7 @@ The question is entered with the `q` URL param (question).
 The `q` can be the question itself or any unique identifier if you prefer the question to remain secret.
 
 ### Responses
-Response choices can be defined by using single-digit integers. [0-9]
+Response choices can be defined using single-digit integers `[0-9]`. This option allows you to provide voters with choices beyond 'yes' or 'no.' Each integer corresponds to a unique response key.
 This option is to be used if you want to give choices to voters beyond 'yes' or 'no'.
 
 ### Restricted voting
