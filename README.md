@@ -15,12 +15,12 @@ The `q` can be the question itself or any unique identifier if you prefer the qu
 
 ### Responses
 Response choices can be defined using single-digit integers `[0-9]`. This option allows you to provide voters with choices beyond 'yes' or 'no.' Each integer corresponds to a unique response key.
-This option is to be used if you want to give choices to voters beyond 'yes' or 'no'.
+
 
 ### Restricted voting
 For advanced voting, it is possible to restrict voters to a list of predefined keypairs.
-A `json` file containing the identity of the allowed voters needs to be added to the `public` folder.
-Once this file is available, it can be used with the `r` param, followed by the name of the file (without its json extension).
+To enable restricted voting, create a `json` file containing the identity of the allowed voters and place it in the `public` folder. This file can then be referenced using the `r` param, followed by the name of the file (excluding the `.json` extension).
+
 
 ### Unrestricted voting
 For basic voting, when the `r` param is not used, Earthstar ID is stored in browser settings and prevents users from casting multiple votes from the same browser.
