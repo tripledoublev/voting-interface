@@ -1,6 +1,8 @@
 # Constellate: Voting interface
 
-This is a svelte app that uses Earthstar to quickly create and share a voting interface.
+This is **Constellate**, a Svelte app that uses Earthstar to quickly and easily create anonymous voting events.
+
+---  
 
 ## Customizing parameters
 
