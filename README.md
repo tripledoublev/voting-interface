@@ -32,7 +32,8 @@ For this reason, unrestricted voting should only be used for informal or low-sta
 ---
 
 ## Loading vote data from a config file
-You can load vote data from a config file by using the `v` URL param. The config file should be placed in the `public/configs` folder. The config file should be a JSON file with the following structure:
+To load vote data from a config file, use the `v` URL param. Place the config file in the `public/configs` folder. The file must be a JSON file structured as follows:
+
 
 ```json
 {
