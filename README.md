@@ -25,8 +25,11 @@ To enable restricted voting, create a `json` file containing the identity of the
 ### Unrestricted voting
 For basic voting, when the `r` param is not used, Earthstar ID is stored in browser settings and prevents users from casting multiple votes from the same browser.
 
-When votes are not restricted to specific keypairs, users can still open private windows, other browsers, or any other strategy for casting multiple votes.
-This is why this voting interface should not be used in unrestricted mode for important votes. The unrestricted option is meant to offer a quick and fun interface to gather feedback on specific questions.
+When votes are unrestricted, users can open private windows, use other browsers, or employ other methods to cast multiple votes.  
+For this reason, unrestricted voting should only be used for informal or low-stakes voting. It offers a quick and fun way to gather feedback on specific questions but does not provide any restrictions on the amount of votes users can cast.
+
+
+---
 
 ## Loading vote data from a config file
 You can load vote data from a config file by using the `v` URL param. The config file should be placed in the `public/configs` folder. The config file should be a JSON file with the following structure:
